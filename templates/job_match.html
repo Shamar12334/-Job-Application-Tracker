@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Job Match{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Job Match</h1>
+            <p class="muted">Enter your skills to see how well you fit each saved job.</p>
+        </div>
+    </div>
+
+    <form class="card card-pad match-form" method="get" action="{{ url_for('job_match') }}">
+        <label for="skills">Your skills</label>
+        <div class="input-row">
+            <input type="text" id="skills" name="skills" value="{{ skills_text }}" placeholder="python, sql, flask" autocomplete="off">
+            <button type="submit" class="btn btn-primary">Find matches</button>
+        </div>
+        <small class="hint">Separate skills with commas. Matching ignores upper/lower case.</small>
+    </form>
+
+    {% if searched %}
+    <section class="match-list">
+        {% for r in results %}
+        <article class="card card-pad match-card">
+            <span class="rank">#{{ loop.index }}</span>
+            <div class="match-head">
+                <div>
+                    <h2 class="cell-title"><a href="{{ url_for('job_detail', job_id=r.job.job_id) }}">{{ r.job.job_title }}</a></h2>
+                    <div class="cell-sub">{{ r.job.company_name }}</div>
+                </div>
+                <div class="score-box">
+                    <div class="score {{ 'score-high' if r.score >= 70 else 'score-mid' if r.score >= 40 else 'score-low' }}">{{ r.score }}%</div>
+                    <div class="cell-sub">{{ r.matched|length }}/{{ r.total }} skills</div>
+                </div>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width: {{ r.score }}%"></div></div>
+            <div class="match-skills">
+                {% if r.matched %}
+                <div><span class="muted">You have</span>
+                    <div class="tags">{% for s in r.matched %}<span class="tag tag-yes">✓ {{ s }}</span>{% endfor %}</div>
+                </div>
+                {% endif %}
+                {% if r.missing %}
+                <div><span class="muted">Missing</span>
+                    <div class="tags">{% for s in r.missing %}<span class="tag tag-no">{{ s }}</span>{% endfor %}</div>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+        {% else %}
+        <p class="card card-pad empty">No saved jobs have requirements yet. <a href="{{ url_for('jobs') }}">Add requirements to a job</a> to see matches.</p>
+        {% endfor %}
+    </section>
+    {% endif %}
+{% endblock %}

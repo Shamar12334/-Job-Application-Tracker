@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% import '_detail.html' as d %}
+{% set a = app_row %}
+{% block title %}Application: {{ a.job_title }}{% endblock %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('applications') }}">Applications</a><span aria-hidden="true">/</span><span>{{ a.job_title }}</span>
+    </nav>
+
+    <div class="page-header" data-record='{{ a|tojson }}'>
+        <div>
+            <h1>{{ a.job_title }}</h1>
+            <p class="muted">
+                <a href="{{ url_for('company_detail', company_id=a.company_id) }}">{{ a.company_name }}</a>
+                · applied {{ a.application_date }}
+                {% if a.status %}&nbsp;<span class="badge status-{{ a.status|lower }}">{{ a.status }}</span>{% endif %}
+            </p>
+        </div>
+        {{ d.header_actions() }}
+    </div>
+
+    <div class="detail-grid">
+        <section class="card card-pad">
+            <h2>Details</h2>
+            <dl class="details">
+                {% call d.row('Job', a.job_title) %}<a href="{{ url_for('job_detail', job_id=a.job_id) }}">{{ a.job_title }}</a>{% endcall %}
+                {% call d.row('Company', a.company_name) %}<a href="{{ url_for('company_detail', company_id=a.company_id) }}">{{ a.company_name }}</a>{% endcall %}
+                {{ d.row('Date applied', a.application_date) }}
+                {% call d.row('Status', a.status) %}<span class="badge status-{{ a.status|lower }}">{{ a.status }}</span>{% endcall %}
+                {{ d.row('Resume version', a.resume_version) }}
+                {{ d.row('Cover letter', none if a.cover_letter_sent is none else ('Sent' if a.cover_letter_sent else 'Not sent')) }}
+                {% call d.row('Job posting', a.job_url) %}<a href="{{ a.job_url }}" target="_blank" rel="noopener">Open job posting ↗</a>{% endcall %}
+            </dl>
+        </section>
+
+        <section class="card card-pad">
+            <h2>Interviews</h2>
+            {% set data = a.interview_data %}
+            {% if data is mapping and data.rounds is defined and data.rounds is iterable %}
+            <ol class="timeline">
+                {% for round in data.rounds %}
+                <li>
+                    <div class="cell-title">{{ round.type or 'Round ' ~ (round.round or loop.index) }}</div>
+                    <div class="cell-sub">{{ round.date or 'Date not set' }}</div>
+                    {% if round.notes %}<p class="timeline-notes">{{ round.notes }}</p>{% endif %}
+                </li>
+                {% endfor %}
+            </ol>
+            {% if data.offer is defined %}
+            <div class="offer">
+                <strong>Offer</strong>
+                {% if data.offer.salary %} · {{ d.money(data.offer.salary) }}{% endif %}
+                {% if data.offer.deadline %} · respond by {{ data.offer.deadline }}{% endif %}
+            </div>
+            {% endif %}
+            {% elif data %}
+            <pre class="json">{{ data|tojson(indent=2) }}</pre>
+            {% else %}
+            <p class="muted">No interview notes yet. Click <strong>Edit</strong> to add them as JSON, for example
+                <code>{"rounds": [{"type": "Phone screen", "date": "2026-12-01"}]}</code>.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    {{ crud.application_config(jobs, statuses, after_delete=url_for('applications')) }}
+{% endblock %}

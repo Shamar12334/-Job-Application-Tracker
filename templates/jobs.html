@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Jobs</h1>
+            <p class="muted">{{ jobs|length }} job{{ '' if jobs|length == 1 else 's' }} saved</p>
+        </div>
+        {% if companies %}
+        <button class="btn btn-primary" data-action="create">+ Add job</button>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('companies') }}">Add a company first</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <input type="search" class="search" placeholder="Search jobs, companies, skills…" data-search="#jobs-table" aria-label="Search jobs">
+        </div>
+        <div class="table-wrap">
+            <table id="jobs-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Type</th>
+                        <th>Salary</th>
+                        <th>Requirements</th>
+                        <th>Posted</th>
+                        <th class="actions-col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr data-record='{{ job|tojson }}'>
+                        <td>
+                            <div class="cell-title"><a href="{{ url_for('job_detail', job_id=job.job_id) }}">{{ job.job_title }}</a></div>
+                            <div class="cell-sub"><a class="link-muted" href="{{ url_for('company_detail', company_id=job.company_id) }}">{{ job.company_name }}</a></div>
+                        </td>
+                        <td>{% if job.job_type %}<span class="chip">{{ job.job_type }}</span>{% endif %}</td>
+                        <td class="nowrap">
+                            {% if job.salary_min and job.salary_max %}${{ '{:,}'.format(job.salary_min) }} – ${{ '{:,}'.format(job.salary_max) }}
+                            {% elif job.salary_min %}From ${{ '{:,}'.format(job.salary_min) }}
+                            {% elif job.salary_max %}Up to ${{ '{:,}'.format(job.salary_max) }}{% endif %}
+                        </td>
+                        <td>
+                            {% if job.requirements is iterable and job.requirements is not string and job.requirements is not mapping %}
+                            <div class="tags">{% for r in job.requirements %}<span class="tag">{{ r }}</span>{% endfor %}</div>
+                            {% elif job.requirements %}<span class="cell-sub">{{ job.requirements }}</span>{% endif %}
+                        </td>
+                        <td class="nowrap">{{ job.date_posted or '' }}</td>
+                        <td class="actions">
+                            <button class="btn btn-sm btn-ghost" data-action="edit">Edit</button>
+                            <button class="btn btn-sm btn-ghost btn-ghost-danger" data-action="delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="empty">No jobs yet.{% if not companies %} Add a company first, then add jobs for it.{% endif %}</td></tr>
+                    {% endfor %}
+                    <tr class="no-results" hidden><td colspan="6" class="empty">No jobs match your search.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{ crud.job_config(companies) }}
+{% endblock %}

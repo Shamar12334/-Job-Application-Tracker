@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <section class="hero">
+        <p class="eyebrow">Your job search, organized</p>
+        <h1>Keep every application, company and contact in one place.</h1>
+        <p class="lead">Save jobs you find, track each application from <em>Applied</em> to <em>Offer</em>, and see which roles match your skills.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" href="{{ url_for('applications') }}">Track an application</a>
+            <a class="btn btn-ghost btn-lg" href="{{ url_for('dashboard') }}">View dashboard →</a>
+        </div>
+    </section>
+
+    <section class="stat-grid">
+        <a class="stat-card" href="{{ url_for('companies') }}">
+            <span class="stat-label">Companies</span>
+            <span class="stat-value">{{ counts.companies }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('jobs') }}">
+            <span class="stat-label">Jobs</span>
+            <span class="stat-value">{{ counts.jobs }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('applications') }}">
+            <span class="stat-label">Applications</span>
+            <span class="stat-value">{{ counts.applications }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('contacts') }}">
+            <span class="stat-label">Contacts</span>
+            <span class="stat-value">{{ counts.contacts }}</span>
+        </a>
+    </section>
+
+    <section class="card card-pad">
+        <h2>Getting started</h2>
+        <ol class="steps">
+            <li class="{{ 'done' if counts.companies }}"><a href="{{ url_for('companies') }}">Add a company</a> you're interested in.</li>
+            <li class="{{ 'done' if counts.jobs }}"><a href="{{ url_for('jobs') }}">Save a job</a> at that company, with its required skills.</li>
+            <li class="{{ 'done' if counts.applications }}"><a href="{{ url_for('applications') }}">Log your application</a> and update its status as you hear back.</li>
+            <li class="{{ 'done' if counts.contacts }}"><a href="{{ url_for('contacts') }}">Add contacts</a> such as recruiters and hiring managers.</li>
+        </ol>
+    </section>
+{% endblock %}

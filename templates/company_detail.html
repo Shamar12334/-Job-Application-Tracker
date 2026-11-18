@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% import '_detail.html' as d %}
+{% block title %}{{ company.company_name }}{% endblock %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('companies') }}">Companies</a><span aria-hidden="true">/</span><span>{{ company.company_name }}</span>
+    </nav>
+
+    <div class="page-header" data-record='{{ company|tojson }}'>
+        <div>
+            <h1>{{ company.company_name }}</h1>
+            <p class="muted">{{ [company.industry, [company.city, company.state]|select|join(', ')]|select|join(' · ') }}</p>
+        </div>
+        {{ d.header_actions() }}
+    </div>
+
+    <div class="detail-grid">
+        <section class="card card-pad">
+            <h2>Details</h2>
+            <dl class="details">
+                {{ d.row('Industry', company.industry) }}
+                {% call d.row('Website', company.website) %}<a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website }}</a>{% endcall %}
+                {{ d.row('City', company.city) }}
+                {{ d.row('State', company.state) }}
+                {% call d.row('Notes', company.notes) %}<span class="pre-line">{{ company.notes }}</span>{% endcall %}
+            </dl>
+        </section>
+
+        <div class="stack">
+            <section class="card card-pad">
+                <div class="section-head">
+                    <h2>Jobs <span class="count">{{ jobs|length }}</span></h2>
+                    <a href="{{ url_for('jobs') }}">All jobs →</a>
+                </div>
+                {% if jobs %}
+                <ul class="list">
+                    {% for job in jobs %}
+                    <li>
+                        <div>
+                            <div class="cell-title"><a href="{{ url_for('job_detail', job_id=job.job_id) }}">{{ job.job_title }}</a></div>
+                            <div class="cell-sub">{{ job.job_type or 'Type not set' }} · {{ job.application_count }} application{{ '' if job.application_count == 1 else 's' }}</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No jobs saved for this company yet.</p>
+                {% endif %}
+            </section>
+
+            <section class="card card-pad">
+                <div class="section-head">
+                    <h2>Contacts <span class="count">{{ contacts|length }}</span></h2>
+                    <a href="{{ url_for('contacts') }}">All contacts →</a>
+                </div>
+                {% if contacts %}
+                <ul class="list">
+                    {% for contact in contacts %}
+                    <li>
+                        <div class="person">
+                            <span class="avatar" aria-hidden="true">{{ contact.contact_name[:1]|upper }}</span>
+                            <div>
+                                <div class="cell-title"><a href="{{ url_for('contact_detail', contact_id=contact.contact_id) }}">{{ contact.contact_name }}</a></div>
+                                {% if contact.title %}<div class="cell-sub">{{ contact.title }}</div>{% endif %}
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="muted">No contacts at this company yet.</p>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+
+    {{ crud.company_config(after_delete=url_for('companies')) }}
+{% endblock %}

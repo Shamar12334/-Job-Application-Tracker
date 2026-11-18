@@ -1,0 +1,16 @@
+{# Small helpers for the detail pages. #}
+{% macro row(label, value) %}
+    <div class="detail-row">
+        <dt>{{ label }}</dt>
+        <dd>{% if value is none or value == '' %}<span class="muted">—</span>{% else %}{{ caller() if caller else value }}{% endif %}</dd>
+    </div>
+{% endmacro %}
+
+{% macro header_actions() %}
+    <div class="header-actions">
+        <button class="btn btn-ghost" data-action="edit">Edit</button>
+        <button class="btn btn-ghost btn-ghost-danger" data-action="delete">Delete</button>
+    </div>
+{% endmacro %}
+
+{% macro money(v) %}{% if v is not none %}${{ '{:,}'.format(v) }}{% endif %}{% endmacro %}

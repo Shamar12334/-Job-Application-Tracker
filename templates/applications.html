@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Applications</h1>
+            <p class="muted">{{ applications|length }} application{{ '' if applications|length == 1 else 's' }} sent</p>
+        </div>
+        {% if jobs %}
+        <button class="btn btn-primary" data-action="create">+ Add application</button>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('jobs') }}">Add a job first</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <input type="search" class="search" placeholder="Search by job, company, status…" data-search="#applications-table" aria-label="Search applications">
+        </div>
+        <div class="table-wrap">
+            <table id="applications-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Applied</th>
+                        <th>Status</th>
+                        <th>Resume</th>
+                        <th>Cover letter</th>
+                        <th class="actions-col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr data-record='{{ app|tojson }}'>
+                        <td>
+                            <div class="cell-title"><a href="{{ url_for('application_detail', application_id=app.application_id) }}">{{ app.job_title }}</a></div>
+                            <div class="cell-sub">{{ app.company_name }}</div>
+                        </td>
+                        <td class="nowrap">{{ app.application_date }}</td>
+                        <td>{% if app.status %}<span class="badge status-{{ app.status|lower }}">{{ app.status }}</span>{% endif %}</td>
+                        <td>{{ app.resume_version or '' }}</td>
+                        <td>{% if app.cover_letter_sent is none %}<span class="muted">—</span>{% elif app.cover_letter_sent %}<span class="check">✓ Sent</span>{% else %}<span class="muted">No</span>{% endif %}</td>
+                        <td class="actions">
+                            <button class="btn btn-sm btn-ghost" data-action="edit">Edit</button>
+                            <button class="btn btn-sm btn-ghost btn-ghost-danger" data-action="delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="empty">No applications yet.</td></tr>
+                    {% endfor %}
+                    <tr class="no-results" hidden><td colspan="6" class="empty">No applications match your search.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{ crud.application_config(jobs, statuses) }}
+{% endblock %}

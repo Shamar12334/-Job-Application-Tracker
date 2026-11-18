@@ -1,0 +1,74 @@
+{# Add/edit form settings for each table, shared by list and detail pages.
+   after_delete: where to go after deleting (detail pages); omit to reload. #}
+
+{% macro company_config(after_delete=none) %}
+<script id="crud-config" type="application/json">{{ {
+        'afterDelete': after_delete,
+        'resource': 'companies', 'idKey': 'company_id', 'nameKey': 'company_name', 'label': 'company',
+        'deleteWarning': 'This also deletes every job, application and contact linked to this company. This cannot be undone.',
+        'fields': [
+            {'name': 'company_name', 'label': 'Company name', 'required': true, 'maxlength': 100, 'wide': true},
+            {'name': 'industry', 'label': 'Industry', 'maxlength': 50, 'placeholder': 'e.g. Fintech'},
+            {'name': 'website', 'label': 'Website', 'type': 'url', 'maxlength': 200, 'placeholder': 'https://'},
+            {'name': 'city', 'label': 'City', 'maxlength': 50},
+            {'name': 'state', 'label': 'State', 'maxlength': 50},
+            {'name': 'notes', 'label': 'Notes', 'type': 'textarea', 'wide': true},
+        ]
+    }|tojson }}</script>
+{% endmacro %}
+
+{% macro job_config(companies, after_delete=none) %}
+<script id="crud-config" type="application/json">{{ {
+        'afterDelete': after_delete,
+        'resource': 'jobs', 'idKey': 'job_id', 'nameKey': 'job_title', 'label': 'job',
+        'deleteWarning': 'This also deletes every application for this job. This cannot be undone.',
+        'fields': [
+            {'name': 'job_title', 'label': 'Job title', 'required': true, 'maxlength': 100, 'wide': true},
+            {'name': 'company_id', 'label': 'Company', 'type': 'select', 'required': true, 'numeric': true,
+             'options': companies},
+            {'name': 'job_type', 'label': 'Job type', 'type': 'select',
+             'options': [{'value': 'Full-time', 'label': 'Full-time'}, {'value': 'Part-time', 'label': 'Part-time'},
+                         {'value': 'Contract', 'label': 'Contract'}, {'value': 'Internship', 'label': 'Internship'}]},
+            {'name': 'salary_min', 'label': 'Salary min', 'type': 'number', 'placeholder': '60000'},
+            {'name': 'salary_max', 'label': 'Salary max', 'type': 'number', 'placeholder': '90000'},
+            {'name': 'job_url', 'label': 'Job posting URL', 'type': 'url', 'maxlength': 300, 'placeholder': 'https://'},
+            {'name': 'date_posted', 'label': 'Date posted', 'type': 'date'},
+            {'name': 'requirements', 'label': 'Requirements', 'type': 'tags', 'wide': true,
+             'placeholder': 'Python, SQL, Flask', 'hint': 'Separate skills with commas. Used by Job Match.'},
+        ]
+    }|tojson }}</script>
+{% endmacro %}
+
+{% macro application_config(jobs, statuses, after_delete=none) %}
+<script id="crud-config" type="application/json">{{ {
+        'afterDelete': after_delete,
+        'resource': 'applications', 'idKey': 'application_id', 'nameKey': 'job_title', 'label': 'application',
+        'fields': [
+            {'name': 'job_id', 'label': 'Job', 'type': 'select', 'required': true, 'numeric': true, 'options': jobs, 'wide': true},
+            {'name': 'application_date', 'label': 'Date applied', 'type': 'date', 'required': true},
+            {'name': 'status', 'label': 'Status', 'type': 'select', 'default': 'Applied',
+             'options': statuses},
+            {'name': 'resume_version', 'label': 'Resume version', 'maxlength': 50, 'placeholder': 'e.g. v3-backend'},
+            {'name': 'cover_letter_sent', 'label': 'Cover letter sent', 'type': 'checkbox'},
+            {'name': 'interview_data', 'label': 'Interview notes (JSON)', 'type': 'json', 'wide': true,
+             'placeholder': '{"round": 1, "date": "2026-12-01", "interviewer": "Sam"}',
+             'hint': 'Optional. Any valid JSON object or list.'},
+        ]
+    }|tojson }}</script>
+{% endmacro %}
+
+{% macro contact_config(companies, after_delete=none) %}
+<script id="crud-config" type="application/json">{{ {
+        'afterDelete': after_delete,
+        'resource': 'contacts', 'idKey': 'contact_id', 'nameKey': 'contact_name', 'label': 'contact',
+        'fields': [
+            {'name': 'contact_name', 'label': 'Name', 'required': true, 'maxlength': 100},
+            {'name': 'company_id', 'label': 'Company', 'type': 'select', 'required': true, 'numeric': true, 'options': companies},
+            {'name': 'title', 'label': 'Job title', 'maxlength': 100, 'placeholder': 'e.g. Recruiter'},
+            {'name': 'email', 'label': 'Email', 'type': 'email', 'maxlength': 100},
+            {'name': 'phone', 'label': 'Phone', 'type': 'tel', 'maxlength': 20},
+            {'name': 'linkedin_url', 'label': 'LinkedIn URL', 'type': 'url', 'maxlength': 200, 'placeholder': 'https://linkedin.com/in/…'},
+            {'name': 'notes', 'label': 'Notes', 'type': 'textarea', 'wide': true},
+        ]
+    }|tojson }}</script>
+{% endmacro %}

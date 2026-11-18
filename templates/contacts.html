@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% block title %}Contacts{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Contacts</h1>
+            <p class="muted">{{ contacts|length }} contact{{ '' if contacts|length == 1 else 's' }} in your network</p>
+        </div>
+        {% if companies %}
+        <button class="btn btn-primary" data-action="create">+ Add contact</button>
+        {% else %}
+        <a class="btn btn-primary" href="{{ url_for('companies') }}">Add a company first</a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <input type="search" class="search" placeholder="Search contacts…" data-search="#contacts-table" aria-label="Search contacts">
+        </div>
+        <div class="table-wrap">
+            <table id="contacts-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>LinkedIn</th>
+                        <th class="actions-col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contact in contacts %}
+                    <tr data-record='{{ contact|tojson }}'>
+                        <td>
+                            <div class="person">
+                                <span class="avatar" aria-hidden="true">{{ contact.contact_name[:1]|upper }}</span>
+                                <div>
+                                    <div class="cell-title"><a href="{{ url_for('contact_detail', contact_id=contact.contact_id) }}">{{ contact.contact_name }}</a></div>
+                                    {% if contact.title %}<div class="cell-sub">{{ contact.title }}</div>{% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td><a class="link-muted" href="{{ url_for('company_detail', company_id=contact.company_id) }}">{{ contact.company_name }}</a></td>
+                        <td>{% if contact.email %}<a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endif %}</td>
+                        <td class="nowrap">{% if contact.phone %}<a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>{% endif %}</td>
+                        <td>{% if contact.linkedin_url %}<a href="{{ contact.linkedin_url }}" target="_blank" rel="noopener">Profile ↗</a>{% endif %}</td>
+                        <td class="actions">
+                            <button class="btn btn-sm btn-ghost" data-action="edit">Edit</button>
+                            <button class="btn btn-sm btn-ghost btn-ghost-danger" data-action="delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="empty">No contacts yet.</td></tr>
+                    {% endfor %}
+                    <tr class="no-results" hidden><td colspan="6" class="empty">No contacts match your search.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{ crud.contact_config(companies) }}
+{% endblock %}

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Job Application Tracker{% endblock %} · Job Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+    {% set nav = [
+        ('index', 'Home'),
+        ('dashboard', 'Dashboard'),
+        ('applications', 'Applications'),
+        ('jobs', 'Jobs'),
+        ('companies', 'Companies'),
+        ('contacts', 'Contacts'),
+        ('job_match', 'Job Match'),
+    ] %}
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="{{ url_for('index') }}">
+                <span class="brand-mark" aria-hidden="true">JT</span>
+                <span class="brand-name">Job Tracker</span>
+            </a>
+            <nav aria-label="Main">
+                <ul class="nav">
+                    {% for endpoint, label in nav %}
+                    <li>
+                        <a href="{{ url_for(endpoint) }}"
+                           {% if request.endpoint == endpoint %}class="active" aria-current="page"{% endif %}>{{ label }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# Shared add/edit form, filled in by static/app.js #}
+    <dialog id="crud-dialog" class="dialog">
+        <form method="dialog">
+            <header class="dialog-header">
+                <h2 class="dialog-title">Add</h2>
+                <button type="button" class="icon-btn" data-close aria-label="Close">&times;</button>
+            </header>
+            <div class="form-fields"></div>
+            <p class="form-error" role="alert" hidden></p>
+            <footer class="dialog-footer">
+                <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </footer>
+        </form>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="dialog dialog-sm">
+        <div class="dialog-body">
+            <h2 class="confirm-title">Delete?</h2>
+            <p class="confirm-text muted">This cannot be undone.</p>
+        </div>
+        <footer class="dialog-footer">
+            <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+            <button type="button" class="btn btn-danger" data-confirm>Delete</button>
+        </footer>
+    </dialog>
+
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+</body>
+</html>

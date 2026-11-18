@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% block title %}Companies{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Companies</h1>
+            <p class="muted">{{ companies|length }} compan{{ 'y' if companies|length == 1 else 'ies' }} you're tracking</p>
+        </div>
+        <button class="btn btn-primary" data-action="create">+ Add company</button>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <input type="search" class="search" placeholder="Search companies…" data-search="#companies-table" aria-label="Search companies">
+        </div>
+        <div class="table-wrap">
+            <table id="companies-table" class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Industry</th>
+                        <th>Location</th>
+                        <th>Website</th>
+                        <th class="actions-col"><span class="sr-only">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in companies %}
+                    <tr data-record='{{ company|tojson }}'>
+                        <td>
+                            <div class="cell-title"><a href="{{ url_for('company_detail', company_id=company.company_id) }}">{{ company.company_name }}</a></div>
+                            {% if company.notes %}<div class="cell-sub">{{ company.notes|truncate(60) }}</div>{% endif %}
+                        </td>
+                        <td>{% if company.industry %}<span class="chip">{{ company.industry }}</span>{% endif %}</td>
+                        <td>{{ [company.city, company.state] | select | join(', ') }}</td>
+                        <td>{% if company.website %}<a href="{{ company.website }}" target="_blank" rel="noopener">{{ company.website|replace('https://', '')|replace('http://', '')|truncate(32) }}</a>{% endif %}</td>
+                        <td class="actions">
+                            <button class="btn btn-sm btn-ghost" data-action="edit">Edit</button>
+                            <button class="btn btn-sm btn-ghost btn-ghost-danger" data-action="delete">Delete</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="empty">No companies yet. Add your first one to get started.</td></tr>
+                    {% endfor %}
+                    <tr class="no-results" hidden><td colspan="5" class="empty">No companies match your search.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{ crud.company_config() }}
+{% endblock %}

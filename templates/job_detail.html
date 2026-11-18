@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% import '_detail.html' as d %}
+{% block title %}{{ job.job_title }}{% endblock %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('jobs') }}">Jobs</a><span aria-hidden="true">/</span><span>{{ job.job_title }}</span>
+    </nav>
+
+    <div class="page-header" data-record='{{ job|tojson }}'>
+        <div>
+            <h1>{{ job.job_title }}</h1>
+            <p class="muted">at <a href="{{ url_for('company_detail', company_id=job.company_id) }}">{{ job.company_name }}</a></p>
+        </div>
+        {{ d.header_actions() }}
+    </div>
+
+    <div class="detail-grid">
+        <section class="card card-pad">
+            <h2>Details</h2>
+            <dl class="details">
+                {% call d.row('Company', job.company_name) %}<a href="{{ url_for('company_detail', company_id=job.company_id) }}">{{ job.company_name }}</a>{% endcall %}
+                {% call d.row('Job type', job.job_type) %}<span class="chip">{{ job.job_type }}</span>{% endcall %}
+                {{ d.row('Salary min', d.money(job.salary_min)|trim) }}
+                {{ d.row('Salary max', d.money(job.salary_max)|trim) }}
+                {{ d.row('Date posted', job.date_posted) }}
+                {% call d.row('Posting', job.job_url) %}<a href="{{ job.job_url }}" target="_blank" rel="noopener">Open job posting ↗</a>{% endcall %}
+                {% call d.row('Requirements', job.requirements) %}
+                    {% if job.requirements is iterable and job.requirements is not string and job.requirements is not mapping %}
+                    <div class="tags">{% for r in job.requirements %}<span class="tag">{{ r }}</span>{% endfor %}</div>
+                    {% else %}<pre class="json">{{ job.requirements|tojson(indent=2) }}</pre>{% endif %}
+                {% endcall %}
+            </dl>
+        </section>
+
+        <section class="card card-pad">
+            <div class="section-head">
+                <h2>Applications <span class="count">{{ applications|length }}</span></h2>
+                <a href="{{ url_for('applications') }}">All applications →</a>
+            </div>
+            {% if applications %}
+            <ul class="list">
+                {% for app in applications %}
+                <li>
+                    <div>
+                        <div class="cell-title"><a href="{{ url_for('application_detail', application_id=app.application_id) }}">Applied {{ app.application_date }}</a></div>
+                        <div class="cell-sub">Resume {{ app.resume_version or '—' }}</div>
+                    </div>
+                    {% if app.status %}<span class="badge status-{{ app.status|lower }}">{{ app.status }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="muted">You haven't applied to this job yet. <a href="{{ url_for('applications') }}">Log an application</a>.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    {{ crud.job_config(companies, after_delete=url_for('jobs')) }}
+{% endblock %}

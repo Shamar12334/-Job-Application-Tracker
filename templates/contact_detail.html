@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% import '_crud.html' as crud %}
+{% import '_detail.html' as d %}
+{% block title %}{{ contact.contact_name }}{% endblock %}
+{% block content %}
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{{ url_for('contacts') }}">Contacts</a><span aria-hidden="true">/</span><span>{{ contact.contact_name }}</span>
+    </nav>
+
+    <div class="page-header" data-record='{{ contact|tojson }}'>
+        <div class="person person-lg">
+            <span class="avatar" aria-hidden="true">{{ contact.contact_name[:1]|upper }}</span>
+            <div>
+                <h1>{{ contact.contact_name }}</h1>
+                <p class="muted">{{ contact.title ~ ' at ' if contact.title }}<a href="{{ url_for('company_detail', company_id=contact.company_id) }}">{{ contact.company_name }}</a></p>
+            </div>
+        </div>
+        {{ d.header_actions() }}
+    </div>
+
+    <section class="card card-pad detail-narrow">
+        <h2>Details</h2>
+        <dl class="details">
+            {% call d.row('Company', contact.company_name) %}<a href="{{ url_for('company_detail', company_id=contact.company_id) }}">{{ contact.company_name }}</a>{% endcall %}
+            {{ d.row('Job title', contact.title) }}
+            {% call d.row('Email', contact.email) %}<a href="mailto:{{ contact.email }}">{{ contact.email }}</a>{% endcall %}
+            {% call d.row('Phone', contact.phone) %}<a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>{% endcall %}
+            {% call d.row('LinkedIn', contact.linkedin_url) %}<a href="{{ contact.linkedin_url }}" target="_blank" rel="noopener">View profile ↗</a>{% endcall %}
+            {% call d.row('Notes', contact.notes) %}<span class="pre-line">{{ contact.notes }}</span>{% endcall %}
+        </dl>
+    </section>
+
+    {{ crud.contact_config(companies, after_delete=url_for('contacts')) }}
+{% endblock %}

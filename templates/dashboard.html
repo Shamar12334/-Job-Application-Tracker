@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <div class="page-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p class="muted">An overview of your job search</p>
+        </div>
+    </div>
+
+    <section class="stat-grid">
+        <a class="stat-card" href="{{ url_for('applications') }}">
+            <span class="stat-label">Applications</span>
+            <span class="stat-value">{{ counts.applications }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('jobs') }}">
+            <span class="stat-label">Jobs saved</span>
+            <span class="stat-value">{{ counts.jobs }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('companies') }}">
+            <span class="stat-label">Companies</span>
+            <span class="stat-value">{{ counts.companies }}</span>
+        </a>
+        <a class="stat-card" href="{{ url_for('contacts') }}">
+            <span class="stat-label">Contacts</span>
+            <span class="stat-value">{{ counts.contacts }}</span>
+        </a>
+    </section>
+
+    <div class="grid-2">
+        <section class="card card-pad">
+            <h2>Applications by status</h2>
+            <ul class="bars">
+                {% for status, total in status_counts %}
+                {% set pct = (100 * total / counts.applications) if counts.applications else 0 %}
+                <li>
+                    <div class="bar-label">
+                        <span class="badge status-{{ status|lower }}">{{ status }}</span>
+                        <span class="bar-count">{{ total }}</span>
+                    </div>
+                    <div class="bar-track"><div class="bar-fill status-{{ status|lower }}" style="width: {{ pct|round(1) }}%"></div></div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <section class="card card-pad">
+            <div class="section-head">
+                <h2>Recent applications</h2>
+                <a href="{{ url_for('applications') }}">View all →</a>
+            </div>
+            {% if recent %}
+            <ul class="list">
+                {% for app in recent %}
+                <li>
+                    <div>
+                        <div class="cell-title"><a href="{{ url_for('application_detail', application_id=app.application_id) }}">{{ app.job_title }}</a></div>
+                        <div class="cell-sub">{{ app.company_name }} · {{ app.application_date }}</div>
+                    </div>
+                    {% if app.status %}<span class="badge status-{{ app.status|lower }}">{{ app.status }}</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">No applications yet. <a href="{{ url_for('applications') }}">Add one</a>.</p>
+            {% endif %}
+        </section>
+    </div>
+{% endblock %}
